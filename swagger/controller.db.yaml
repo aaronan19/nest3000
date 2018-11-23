@@ -1,0 +1,1249 @@
+swagger: '2.0'
+info:
+  title: eNMS Database Model
+  description: eNMS Database Model
+  version: 1.0.0
+basePath: /dbs
+schemes:
+  - http
+  - https
+
+paths:
+  '/version':
+    get:
+      tags:
+        - model.db
+      produces:
+        - application/json
+      operationId: getModelsVersion
+      responses:
+        200:
+          description: OK
+          schema:
+            type: string
+        500:
+          description: eNMS Error
+          schema:
+            $ref: './common.model.yaml#/definitions/ErrorInfo'
+
+definitions:
+  CtrlCollNode:
+    type: object
+    properties:
+      _id:
+        type: string
+      userLabel:
+        type: string
+      type:
+        type: string
+      availableState:
+        type: string
+        enum:
+          - AVAILABLE
+          - UNAVAILABLE
+      vendor:
+        type: string
+        default: "NOKIA"
+      nes:
+        type: array
+        items:
+          type: string
+      version:
+        type: string
+        description: 节点版本
+      params:
+        type: object
+        additionalProperties:
+          type: object
+  CtrlCollNe:
+    type: object
+    properties:
+      _id:
+        type: string
+        description: 'NE数据库ID'
+      neFamily:
+        type: string
+        description: '(enum) 1830PSS'
+      neType:
+        type: string
+      neRelease:
+        type: string
+#      actualNeRelease:
+#        type: string
+#        description: '实际的NE版本'
+      neSoftwareRelase:
+        type: string
+        description:  '软件版本'
+      userLabel:
+        type: string
+        description: "Managed by NMS, and support any language such as English and Chinese etc."
+      nativeName:
+        type: string
+        description: "Name in NE MIB"
+      addresses:
+        description: q3->Q3Address, tl1->IpAddress, snmp->IpAddress, Loopback->IpAddress
+        type: object
+        additionalProperties:
+          type: object
+      location:
+        type: string
+      ntpServerList:
+        type: array
+        description: '网元上配置的ntpServer列表， Q3 NTP地址是Q3格式，其他为IP格式。可支持主备地址'
+        items:
+          type: string
+      ntpServerReachability:
+        type: string
+        description: '(enum)反映NE ntpServer的可达性 0:reachable 1:unreachable 不用存数据库'
+      usmLink:
+        type: string
+        description: '开启网元USM的HTTP link.'
+      alarmState:
+        type: string
+        description: '(enum)0:cleared 1:indicator 2:warning 3:minor 4:major 5:critical'
+        default: "CLEARED"
+      lacState:
+        type: string
+        description: '(enum) 0:granted 1:denied 2:partial'
+      operationalState:
+        type: string
+        description: '(enum) 记录网管对Node下所有NE的操作状态。只要Node下的网元状态不一致，此状态为unknow. 0:idle 1:disable 2:<do>ing 3:unknow'
+      supervisionState:
+        type: string
+        description: '(enum) 记录网管是否希望与Node下所有网元建立连接. 0:supervised 1:noSupervised 2:partial'
+      expectedSupervisionState:
+        type: string
+        description: '(enum)  0:supervised 1:noSupervised'
+      maintenanceState:
+        type: string
+        description: '(enum) 反映与Node下所有网元是否处于维护期间，=True时，网管不处理此网元的告警信息. 0:true 1:false 2:partial'
+        default: "TRUE"
+      alignmentState:
+        type: string
+        description: '(enum)反映网管与Node下所有网元数据是否一致。当misaligned时，网管只对aligned的网元操作.0:aligned 1:misaligned 2:partial'
+      communicationState:
+        type: string
+        description: '(enum)反映网管与Node下所有网元通信的实际情况.0:connected 1:disconnected 2:partial'
+      params:
+        type: object
+        additionalProperties:
+          type: object
+      loginInfo:    
+        type: object
+        additionalProperties:
+          type: string
+      supportedTech:
+        type: string
+        description: 'PDH/SDH/ETH/WDM/IP 几种技术的组合，以逗号为分割.'
+      creationTime:
+        type: integer
+        format: int64
+        description: '网元创建时间.'
+      tags:
+        description: 用户自定义的标签、备注信息.
+        type: array
+        items:
+          type: string
+      pmState:
+        type: string
+        description: History PM Satete, ENUM(ENABLE, DISABLE), DEFAULT=DISABLE
+      adapterId:
+        type: string
+      rack:
+        type: string
+        default: "1"
+      nodeId:
+        type: string        
+      domains:
+        type: array
+        items:
+          type: string
+
+  CtrlCollTp:
+    type: object
+    description: 'Controller Model中TP只有PTP，无CTP信息， CTP相关的信息定义在Route.'
+    properties:
+      _id:
+        type: string
+        description: '数据库ID.'
+      parentTpId:
+        type: string
+      neId:
+        type: string
+        description: 'NE ID'
+      userLabel:
+        type: string
+        example: '按照rack/shelf/slot/port的方式命名'
+      nativeName:
+        type: string
+        description: "在网元ZIC/USM的名称"
+      shelf:
+        type: string
+      slot:
+        type: string
+      name:
+        type: string
+      layerRates:
+        type: array
+        description: '此PTP支持的层速率列表'
+        items:
+          type: string
+      moType:
+        type: string
+        description: '(enum) Managed Object Type'
+      direction:
+        type: string
+        description: 'BI, Rx, Tx.'
+      freeResources:  
+        type: object
+        additionalProperties:
+          type: object
+      tpType:
+        type: string
+        description: '(enum)0:PTP 1:CTP 2:FTP 3:LAG 4:lagMember.上报TP列表到GUI时，只输出PTP/LAG口。输出PTP/LAG口。'
+      tpRole:
+        type: array
+        description: "tpRole[0]: Current, Potential. tpRole[1]: Virtual, Real. tpRole[1] 可以不存在"
+        items:
+          type: string
+      primaryLayerRate:
+        type: string
+        description: "其主要作用的layerRate，与objectType类似"
+      alarmState:
+        type: string
+        description: '(enum)0:cleared 1:indicator 2:warning 3:minor 4:major 5:critical'
+        default: "CLEARED"
+      ptpId:
+        type: string
+        description: '如果此TP是CTP，此值表明是那个PTP的CTP.'
+      implementState:
+        type: string
+        description: '(enum) allocated, implemented, inService. It is internal management state of TP what should be created by Controller and configure it on NE.'
+      adminState:
+        type: string
+        description: '(enum) Up, Down'
+      timeSlot:
+        type: string
+        description: '该TP的时隙'
+      params:
+        type: object
+        additionalProperties:
+          type: object
+      usage:
+        type: string
+        description: '(enum) idle, busy, partially busy'
+      usageIn:
+        type: string
+        description: '(enum) idle, busy'
+      usageOut:
+        type: string
+        description: '(enum) idle, busy'
+      maintenanceState:
+        type: string
+      tags:
+        description: '用户自定义的标签、备注信息.'
+        type: array
+        items:
+          type: string
+
+  CtrlCollEquipment:
+    type: object
+    description: '主要保存的是equipmentHolder信息，如果此holder加载了具体的板卡/模块信息，actualType有值。如果expectedType和actualType都是空表明此position上没有插盘。当acutalType非空时，params中包含：unitPartNumber， softwarePartNumber， serialNumber'
+    properties:
+      _id:
+        type: string
+        description: '数据库ID.'
+      neId:
+        type: string
+      position:
+        type: string
+        description: '编码格式为rack/shelf/slot/subSlot，rack，shelf必须有值.'
+      shelf:
+        type: string
+      slot:
+        type: string
+      userLabel:
+        type: string
+      nativeName:
+        type: string
+      type:
+        type: string
+        description: '(enum)表明此记录描述的是什么内容,0:slot 1: subslot 2:board'
+      expectedType:
+        type: string
+        description: '网元MIB中的值.'
+      actualType:
+        type: string
+        description: '网元实际插的盘.'
+      alarmState:
+        type: string
+        default: "CLEARED"
+      params:
+        type: object
+        additionalProperties:
+          type: object
+      maintenanceState:
+        type: string
+        default: "TRUE"   
+      tags:
+        description: '用户自定义的标签、备注信息.'
+        type: array
+        items:
+          type: string
+      rack:
+        type: string
+        default: '1'
+
+  CtrlCollConnection:
+    type: object
+    properties:
+      _id:
+        type: string
+      userLabel:
+        type: string
+        description: '编码格式为rack/shelf/slot/subSlot，rack，shelf必须有值.'
+      direction:
+        type: string
+        description: '(enum)单向/双向 0:UNI 1:BI'
+      type:
+        type: string
+        description: '(enum).-1:other 0:Cable 1:Fiber 2:PDH 3:SDH 4:ETH 5:ISA-Q3 6:LAG 7:WDM 8:fiberCable .创建时UI提供初值，然后任何模块都不可修改此值. Cable连接指物理连接；PDH/SDH/ETH 指业务；LAG值LAG连接；ISA-Q3指ISA板卡到Q3的虚连接。UI不输出other/ISA-Q'
+      bandWidth:
+        type: string
+        description: 'ETH业务提供CIR/PIR值；PDH业务取值：E1/E3/E4；SDH业务取值AU4, AU4-4C, AU4-16C, AU4-64C LAG取值为所有端口带宽总和。au4Trail取值AU4 ISA-Q3/other 为空 '
+      cost:
+        type: integer
+        format: int32
+        description: '默认值是20，其他取值参考NPA'
+      topoType:
+        type: string
+        description: '(enum)0:p2p/1:p2mp /2:mp2mp'
+      layerRates:
+        type: array
+        description: '此Connection的层速率'
+        items:
+          type: string
+      primaryLayerRate:
+        type: string
+        description: "其主要作用的layerRate，与objectType类似"
+      moType:
+        type: string
+        description: '(enum) Managed Object Type'
+      protectionLevel:
+        type: string
+        description: '(enum)0:full 1:partial 2:no 3:degrade'
+      workingRole:
+        type: string
+        description: '(enum)Normal/Main/Spare/NormalMember. 除下列情况外，workingRole=normal
+           1. protectionType=Y-Cable|MSP时，其成员connection的workingRole分为main/spare
+           2. protectionType=LAG|VCG时，其成员connection的workingRole取值NormalMember'
+      protectionType:
+        type: string
+        description: '(enum)Nomal/Y-Cabel/SNCP/OLP/OMSP/OCHP/LAG/VCG/MSP'
+      implementState:
+        type: string
+        description: '(enum)0:allocated 1:implemented 2:inService 3:partial.  allocated表示connection所需所有资源在网管侧已经保留;implemented表示所有资源下发网元，但没有投入服务;inService表明网元上资源已投入服务，即adminState=UP;partial:下发命令到网元是出现错误，错误具体信息存储在taskList'
+      operationalState:
+        type: string
+        description: '(enum)当connection路由经过的某个网元operationalState=Disable时，此值为disable'
+      alarmState:
+        type: string
+        description: '(enum)0:cleared 1:indicator 2:warning 3:minor 4:major 5:critical'
+        default: "CLEARED"
+      freeResources:  
+        type: object
+        description: '不同layerRate的PTP，提供的值不一样。其取值需要根据实际情况变化。如STM16的物理端口，-	没有承载任何业务时，freeResource=au64C=0, au16C=0, au4C=4, au4=16, tu3=16×3, tu12=63×16'
+        additionalProperties:
+          type: object
+      # TODO: Route constraints
+      # routeConstraints:
+      #   type: array
+      #   description: '这些限制条件在计算路由时用来传递选路由的限制条件；实际创建路由时仅用来表示该限制需保存到数据库中'
+      #   items:
+      #     $ref: '#/definitions/RouteConstraint'
+      routes:
+        type: array
+        description: '创建路由的关键信息，Controller根据该信息来创建连接'
+        items:
+          $ref: '#/definitions/CtrlCollRoute'
+      clientList:
+        type: array
+        description: 'Connection的客户列表，取值为connection ID'
+        items:
+          type: string
+      # ========================
+      # TODO
+      # ------------------------
+      # splitNodeIDs:
+      #   type: object
+      #   description: '键值对，记录splitNode(neID)， 和此NE 通过什么方法split信号流（0:leg 1:hub 2:spoke）；创建连接时无需传入该项'
+      #   additionalProperties:
+      #     type: object
+      splitXcIds:
+        type: array
+        description: '记录业务通过那个交叉完成的split信号流；创建连接时无需传入该项'
+        items:
+          type: string
+      aendPoints:
+        type: array
+        description: 连接端点列表
+        items:
+          $ref: '#/definitions/CtrlCollDbRefTp'
+      zendPoints:
+        type: array
+        description: 连接端点列表
+        items:
+          $ref: '#/definitions/CtrlCollDbRefTp'
+      params:
+        type: object
+        additionalProperties:
+          type: object
+      creationTime:
+        type: integer
+        format: int64
+        description: '创建时间.'
+      createdBy:
+        type: string
+        description: '创建者信息'
+      maintenanceState:
+        type: string
+        default: "FALSE"
+      tags:
+        description: '用户自定义的标签、备注信息.'
+        type: array
+        items:
+          type: string
+      mismatched:
+        type: boolean
+        description: 'mismatched告警标志，是否有mismatched告警'
+      alogId:
+        type: integer
+        format: int64
+      domains:
+        type: array
+        items:
+          type: string
+  
+  CtrlCollDbRefTp:
+    type: object
+    description: 应用对象，用于Connection端点关联TP和NE。
+    properties:
+      neId:
+        type: string
+      tpId:
+        type: string
+    
+  # TODO: Route constraints
+  # RouteConstraint:
+  #   type: object
+  #   description: '用于描述创建路由时，网管找路由的条件'
+  #   properties:
+  #     objId:
+  #       type: string
+  #       description: 'Route Object Id'
+  #     objectType:
+  #       type: string
+  #       description: '(enum)TP可以是某个特定时隙（CTP）Node/TP/connection'
+  #     role:
+  #       type: string
+  #       description: |
+  #         '(enum)0:useMain 1:usedSpare 2:notUsedMain 3:notUsedSpare 10:usedHub 11:usedSpoke 12:notUseHub 13:notUsedSpoke 没有保护的情况下选择main'
+  #     resourceID:
+  #       type: string
+  #       description: '支持特定资源的ID'
+  
+  CtrlCollRoute:
+    type: object
+    description: '用于描述业务信号流向，资源占用情况。一条Connection由一个服务层提供支持，这个服务层的名称由layerRate确定。一个服务层由多个或一个serverID构成'
+    properties:
+      routeInfo:
+        type: array
+        items:
+          $ref: '#/definitions/CtrlCollRouteInfo'
+      role:
+        type: string
+        description: '(enum) 此路由在整个connectionID中的角色. 0:sncpMain/1:sncpSpare /2:sncpAdvance/3:leg /4:hub/5:spoke/6:hotbackup'
+
+  CtrlCollRouteInfo:
+    type: object
+    properties:
+      serverConnectionId:
+        type: string
+      usedResources:
+        description: 'connectionID占用serverID的什么资源。不同的技术采用的编码格式不一样:SDH timeslot格式;ISA_Q3_Virtual position格式'
+        type: object
+        additionalProperties:
+          type: string
+
+  CtrlCollXc:
+    type: object
+    description: the XC model for Adapter
+    properties:
+      _id:
+        type: string
+      neId:
+        type: string
+      type:
+        type: string
+        description: '(enum)0:simple 1:sncp 2:leg 3:hub 4:spoke'
+      userLabel:
+        type: string
+      nativeName:
+        type: string
+      layerRates:
+        type: array
+        description: '此PTP支持的层速率列表'
+        items:
+          type: string
+      direction:
+        type: string
+        description: '(enum) 0-uni 1-bi'
+      xcRole:
+        type: string
+        description: "(enum)0:flexiable, 1:fixed, 2:potential Flexiable/fixed 都是当前存在的交叉"
+      aendPoints:
+        type: array
+        items:
+          type: string
+      zendPoints:
+        type: array
+        items:
+          type: string
+      implementState:
+        type: string
+        description: '(enum) allocated, implemented, inService. It is internal management state of TP what should be created by Controller and configure it on NE.'
+      usedByConnection:
+        type: string
+        description: '描述此XC被那个connection使用'      
+      params:
+        type: object
+        additionalProperties:
+          type: object
+      atpTimeslots:
+        type: array
+        description: the list of aTP's timeslots
+        items:
+          type: string
+          description: 'WDM 中只出现在ODU交叉中，逗号分隔的整数值, SDH VC12 交叉字符串结构为（TU3/TU2/TU12）'
+      ztpTimeslots:
+        type: array
+        description: the list of zTP's timeslots
+        items:
+          type: string
+          description: 'WDM 中只出现在ODU交叉中，逗号分隔的整数值值, SDH VC12 交叉字符串结构为（TU3/TU2/TU12）'
+      onlyExistCtrl:
+        type: boolean
+        description: '是否仅保存在controller数据库'
+
+          
+  CtrlCollPg:
+    type: object
+    description: PG model
+    properties:
+      _id:
+        type: string
+      neId:
+        type: string
+      type:
+        type: string
+        description: '(enum)0: 1+1  1: N:1 2:2F-Ring 3:SNCP 4:Y-Cable'
+      nmlId:
+        type: string
+        description: '如果是type=SNCP|Y-Cable, nmlID是connectionID. 否则指出与那个NPA相关（OTN中没有NPA）'
+      userLabel:
+        type: string
+      nativeName:
+        type: string
+      layerRates:
+        type: array
+        description: '此PTP支持的层速率列表'
+        items:
+          type: string
+      direction:
+        type: string
+        description: '(enum) 0-uni 1-bi'
+      reversionMode:
+        type: string
+        description: '(enum)0:unknow 1:revertive 2:nonRevertive'
+      wtrTime:
+        type: string
+      holdOffTime:
+        type: string
+      tpIds:
+        type: array
+        description: 'members in protection group order: clientTP (仅针对SNCP), mainTP，spareTP，westTP，eastTP'
+        items:
+          type: string
+      switchData:
+        $ref: "#/definitions/CtrlCollPgSwitchData"
+      implementState:
+        type: string
+        description: '(enum) allocated, implemented, inService. It is internal management state of TP what should be created by Controller and configure it on NE.'
+      params:
+        type: object
+        additionalProperties:
+          type: object
+      usage:
+        type: string
+
+  CtrlCollPgSwitchData:
+    type: object
+    description: 'Protection Switch data of PG'
+    properties:
+      switchStatus:
+        type: string      
+        description: '(enum)0:Unknown, 1:No Request, 2:Do Not Revert, 3:Reverse Request, 4:Wait to Restore, 5:Manual Switch, 6:Signal Degrade, 7:Signal Failure, 8:Forced Switch, 9:Protection Lockout'
+      tpStatus:
+        type: array
+        items:
+          $ref: "#/definitions/CtrlCollTpProtectionStatus"
+
+  CtrlCollTpProtectionStatus:
+    type: object
+    description: 'Protection status of TP'
+    properties:
+      switchCmd:
+        type: string
+        description: '(enum)1:noCmd 2:clear 3:lockoutOfProtection 4:forcedSwitchWorkToProtect 5:forcedSwitchProtectToWork 6:manualSwitchWorkToProtect 7:manualSwitchProtectToWork 8:exercise'
+      txStatus:
+        type: string
+        description: '(enum): active, standby'
+      rxStatus:
+        type: string
+        description: '(enum): active, standby'   
+
+  CtrlCollAdapter:
+    type: object
+    description: 'The host in ENMS, inludes Controller, Adapter, DB etc.'
+    properties:
+      _id:
+        type: string
+        description: 'the ID of the host, can be autogenerated.'
+      type:
+        type: string
+        description: 'the type of the host, Adapter, Datacenter, Controller etc.'
+        example: adapter
+      ipAddress:
+        type: string
+        description: 'the IP Address of the host, IP:port'
+      notificationPort:
+        type: string
+      remark:
+        type: string
+        description: extra info
+      capacity:
+        type: integer
+        format: int32
+      freeResource:
+        type: integer
+        format: int32
+      communicationState:
+        type: string
+        
+  CtrlCollQ3Address:
+    type: object
+    properties:
+      eqAddress:
+        type: string
+      osMain:
+        type: string
+      osSpare:
+        type: string
+  
+  CtrlCollIpAddress:
+    type: object
+    properties:
+      ip:
+        type: string
+      port:
+        type: string
+
+  CtrlCollIpAddressConfig:
+    type: object
+    properties:
+      ip:
+        type: string
+      netmask:
+        type: string
+      gateway:
+        type: string
+
+  CtrlCollCoordinates:
+    type: object
+    description: The coordinates of the NE
+    properties:
+      geo:
+        type: object
+        properties:
+          longitude:
+            type: string
+          latitude:
+            type: string
+      coordinate:
+        type: object
+        properties:
+          x:
+            type: string
+          y:
+            type: string              
+    
+  CtrlCollRIInfo:
+    type: object
+    properties:
+      neId:
+        type: string  
+      riType:
+        type: string          
+      objId:
+        type: string 
+      nodeLabel:
+        type: string          
+      objLabel:
+        type: string         
+      clei:
+        type: string
+      companyId:
+        type: string  
+      date:
+        type: string         
+      extraData:
+        type: string
+      factoryId:
+        type: string  
+      manufacturingPartNumber:
+        type: string 
+      mnemonic:
+        type: string
+      serialNumber:
+        type: string  
+      swPartNumber:
+        type: string         
+      params:
+        type: object
+        additionalProperties:
+          type: object
+          
+  CtrlCollUser:
+    type: object
+    properties:
+      _id:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      mailAddr:
+        type: string
+      createDate:
+        type: integer
+        format: int64
+      groups:
+        type: array
+        items:
+          type: string
+          description: Group ID
+      roles:
+        type: array
+        items:
+          type: string
+          description: Role ID
+      salt:
+        type: string
+      filter:
+          $ref: "#/definitions/CtrlCollAlarmFilter"
+      setting:
+          type: array
+          items:
+            $ref: "#/definitions/CtrlCollKVPaires"
+    
+  CtrlCollAlarmFilter:
+    type: object
+    properties:
+      eq:
+        type: object
+        additionalProperties:
+          type: string
+      ne:
+        type: object
+        additionalProperties:
+          type: string
+      recMsg:
+        type: object
+        additionalProperties:
+          type: string
+      in:
+        type: object
+        additionalProperties:
+          $ref: '#/definitions/StringList'
+      ni:
+        type: object
+        additionalProperties:
+          $ref: '#/definitions/StringList'
+  
+  StringList:
+    type: array
+    items:
+      type: string
+      
+  CtrlCollUserGroup: 
+    type: object
+    properties:
+      _id:
+        type: string
+      name:
+        type: string
+      users:
+        type: array
+        items:
+          type: string
+          description: User ID
+      roles:
+        type: array
+        items:
+          type: string
+          description: Role ID
+    
+  CtrlCollRole:
+    type: object
+    properties:
+      _id:
+        type: string
+      name:
+        type: string
+      roleType:
+        type: string        
+      permissions:
+        type: array
+        items:
+          $ref: '#/definitions/CtrlCollPermission'
+        
+  CtrlCollPermission:
+    type: object
+    properties:
+      perId:
+        type: string
+      accessRight:
+        $ref: "#/definitions/CtrlCollAccessRight"
+      resourceType:
+        type: string
+        description: (enum) FAD, NAD
+      resource:
+        type: string
+        
+  CtrlCollAccessRight:
+    type: string
+    default: NONE
+    enum:
+      - NONE
+      - READ
+      - READ_AND_WRITE
+  
+  CtrlCollKVPaires:
+    type: object
+    additionalProperties:
+      type: object
+
+  ##############################################
+  # eNMS NAD Section
+  # --------------------------------------------
+  CtrlCollDomain:
+    type: object
+    properties:
+      _id:
+        type: string
+      userLabel:
+        type: string
+      tags:
+        type: array
+        items:
+          type: string
+      subDomains:
+        type: array
+        items:
+          type: string
+      resources:
+        type: array
+        items:
+          $ref: '#/definitions/CtrlCollDomainResource'
+  
+  CtrlCollDomainResource:
+    type: object
+    properties:
+      resId:
+        type: string
+      resType:
+        type: string
+
+  ######################################
+  # Alarm
+  #-------------------------------------
+  CtrlCollAlarm:
+    type: object
+    properties:
+      _id:
+        type: string
+        description: '数据库ID，保持唯一'
+      nativeAlarmId:
+        type: string
+        description: 'Alarm native unique Id for raised and cleared'
+      objectType:
+        type: string
+        description: 'NE, eqpt, TP, connection'      
+      objectId:
+        type: string
+        description: 'the alarmed object Id'
+      parentId:
+        type: string
+        description: 'neID'         
+      eventType:
+        type: string
+        description: 'communicationsAlarm, environmentalAlarm, equipmentAlarm, processingErrorAlarm, qualityofServiceAlarm'
+      severity:
+        type: string
+        description: 'severity of alarm: CRITICAL, MAJOR, MINOR, WARNING, INDETERMINATE, CLEARED'
+      isCleared:
+        type: string
+        description: '是否为清除告警: true, false'
+      nativeProbableCause:
+        type: string
+        description: '网元上报的告警原因'
+      condType:
+        type: string
+        description: 'Condition Type'
+      condTextI18n:
+        type: object
+        additionalProperties:
+          type: string
+      probableCauseType:
+        type: string
+        description: '告警大类（如URU，LOS等）'
+      correlatedAlarms:
+        type: array
+        description: '根源告警，列表保存的是所有相关子告警ID。由于Adapter/Controller共用此定义。Adapter上报时此值可以为空'  
+        items:
+          type: string
+      serviceAffecting:
+        type: boolean
+        description: '此告警是否影响业务，NE 告警提供'  
+      params:
+        type: object
+        additionalProperties:
+          type: object
+      nmsRaiseTime:
+        type: integer
+        format: int64
+        description: 'the time of the event on host, NE alarm is adapter time, Connection alarm is connection time'
+      neRaiseTime:
+        type: integer
+        format: int64
+        description: 'the time of the alarm on NE'
+      nmsClearTime:
+        type: integer
+        format: int64
+      neClearTime:
+        type: integer
+        format: int64
+      clearBy:
+        type: string
+        description: '自动(问题处理后，NE发送alarmClear通告)清除为AUTO，手工强制清除时记录操作员名称。Adapter上报时，此字段为空'
+      acknowledgeState:
+        type: boolean
+        default: false
+      acknowledgeTime:
+        type: integer
+        format: int64
+        description: 'acknowledgement time。由于Adapter/Controller共用此定义。Adapter上报时此值为空'
+      acknowledgeBy:
+        type: string
+        description: '记录发起acknowledge命令的操作员名称。由于Adapter/Controller共用此定义。Adapter上报时此值可以为空'
+
+
+###############################
+# Topology Graph
+#-------------------------------
+  CtrlCollTopoNode:
+    type: object
+    properties:
+      _id:
+        type: string
+      type:
+        type: string
+        description: (enum) NE, HOST etc.
+      coordinates:
+        $ref: "#/definitions/CtrlCollCoordinates"
+
+  CtrlCollTopoConnection:
+    type: object
+    properties:
+      _id:
+        type: string
+      nodeIdA:
+        type: string
+        description: TopoNode ID
+      nodeIdZ:
+        type: string
+        description: TopoNode ID
+      connections:
+        type: array
+        description: Connection Id list
+        items:
+          type: string
+      layerRates:
+        type: array
+        items:
+          type: string
+      moType:
+        type: string
+      implementState:
+        type: string
+      alarmState:
+        type: string
+      params:
+        type: object
+        additionalProperties:
+          type: object
+
+  ###############################
+  # Maintenance Object
+  #-------------------------------
+  CtrlCollMaintainedObject:
+    type: object
+    properties:
+      _id:
+        type: string
+      type:
+        type: string
+        description: (enum) NE, Shelf, Equipment and TP
+      expired:
+        type: integer
+        format: int64
+        description: 'Maintenance State expired Time'
+      creationTime:
+        type: integer
+        format: int64
+        description: 'Time of enabling Maintenance State'
+      params:
+        type: object
+        additionalProperties:
+          type: object
+
+  ###############################
+  # PM
+  #-------------------------------
+  CtrlCollFocusedPMCounter:
+    type: object
+    description: Focused PM Counter
+    properties:
+      _id:
+        type: string
+      neId:
+        type: string
+      shelfId:
+        type: string
+      slotId:
+        type: string
+      tpId:
+        type: string
+      counter:
+        type: string
+
+  ###############################
+  # PMC and HA
+  #-------------------------------
+  CtrlCollServiceManager:
+    type: object
+    description: 'PMC进程,用于管理本地服务'
+    properties:
+      _id:
+        type: string
+      userlabel:
+        type: string
+      ip:
+        type: string
+      port:
+        type: string
+      leader:
+        description: 'Leader(Ture),普通保护组成员(False).该属性仅仅在clusterState为True的时候才生效'
+        type: boolean
+      clusterState:
+        description: 'HA保护组成员(True),或普通PMC进程(False)'
+        type: boolean
+      state:
+        type: string
+      priority:
+        description: 'PMC服务的优先级，取值越小，优先级越高，从0开始'
+        type: integer
+        format: int32
+      serviceConfig:
+        type: array
+        items:
+          $ref: "#/definitions/DBServiceConfig"
+      params:
+        type: object
+        additionalProperties:
+          type: object
+  
+  CtrlCollService:
+    type: object
+    description: 'PMC管理的服务节点'
+    properties:
+      _id:
+        type: string
+      managerId:
+        type: string
+      userlabel:
+        type: string
+      ip:
+        type: string
+      port:
+        type: string
+      type:
+        description: '由服务程序自定义各自的服务类型,例如ADAPTER,MESSENGER,CONTROLLER等'
+        type: string
+      role:
+        description: '(enum)0:MASTER 1:SLAVER'
+        type: string
+      load:
+        description: '服务的当前负载,取值范围是0% - 100%'
+        type: integer
+        format: int32
+      state:
+        type: string
+      progressId:
+        description: '进程标识'
+        type: string
+      priority:
+        description: '服务的优先级，从0开始，取值越小，优先级越高，默认和PMC保持一致'
+        type: integer
+        format: int32
+      params:
+        type: object
+        additionalProperties:
+          type: object
+
+  DBServiceConfig:
+    type: object
+    description: '服务角色数量设置'
+    properties:
+      type:
+        description: '服务进程自定义服务类型,例如告警,性能,ADAPTER等'
+        type: string
+      num:
+        type: integer
+        format: int32
+
+  ###############################
+  # OTDR
+  #-------------------------------
+  CtrlCollOtdr:
+    type: object
+    description: 'The history otdr record.'
+    properties:
+      _id:
+        type: string
+        description: 'the ID of otdr, can be autogenerated.'
+      neId:
+        type: string
+        description: 'the ne id.'
+      neFamily:
+        type: string
+        description: 'the ne family'
+      neNativeName:
+        type: string
+      ptpId:
+        type: string
+        description: 'ptp id'
+      ptpNativeName:
+        type: string
+      scanProfileId:
+        type: string
+        description: 'otdr scan profile: 1 to 5'
+      otdrDescription:
+        type: string
+      cableLength:
+        type: string
+      fileName:
+        type: string
+        description: 'otdr file name'
+      fullName:
+        type: string
+        description: 'otdr full file name'
+      scanTime:
+        type: integer
+        format: int64
+        description: 'the otdr start to scan time'
+      scanDirection:
+        type: string
+        description: 'the otdr scan direction, IN or OUT'
+      scanStatus:
+        type: string
+        description: 'the otdr scan stuts, busy or idle'
+      scanProgress:
+        type: string
+        description: 'the scan progress. 0 to 100'
+      scanResult:
+        type: string
+        description: 'the otdr scan result: complete, inProgress, noScan, fail, abort'
+      timeRemaining:
+        type: string
+        description: 'the scan time remain. 0 to 300 second.'
+      transferHost:
+        type: string
+        description: 'ftp server host'
+      transferPath:
+        type: string
+        description: 'ftp server path'
+      transferProtocol:
+        type: string
+        description: 'ftp or sftp'
+      transferUser:
+        type: string
+        description: 'user name'
+      transferPassword:
+        type: string
+        description: 'user password'
+      localPath:
+        type: string
+        description: 'the local path in eNMS to store the otdr file'
+      params:
+        type: object
+        additionalProperties:
+          type: object
+
+  ###############################
+  # parallel take over
+  #-------------------------------
+  CtrlCollTakeOverStaff:
+    type: object
+    description: 'parallel take over staff'
+    properties:
+      _id:
+        type: string
+      aTpId:
+        type: string
+      aNeId:
+        type: string
+      zTpId:
+        type: string
+      zNeId:
+        type: string
+      type:
+        type: string
+      direction:
+        type: string
+      passXcs:
+        type: array
+        items:
+          $ref: "#/definitions/CtrlCollXc"
+      routeMaps:
+        type: object
+        additionalProperties:
+          type: array
+          items:
+            type: string
+      staffId:
+        type: string
+      aConnId:
+        type: string
+      zConnId:
+        type: string
