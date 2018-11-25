@@ -23,18 +23,29 @@
         <!-- Maven Plugin -->
         <maven-jar-plugin.version>3.1.0</maven-jar-plugin.version>
         <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
+
+        <!-- Jetty -->
+        <jettyVersion>9.3.9.v20160517</jettyVersion>
     </properties>
 
     <modules>
         <module>${project.home}/dbdrivers</module>
+        <module>${project.home}/webservs</module>
     </modules>
 
     <dependencies>
-        <!--mongo driver-->
+        <!--mongoDB driver-->
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongo-java-driver</artifactId>
             <version>${mongo.version}</version>
+        </dependency>
+
+        <!--Jetty WEB server -->
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+            <version>${jettyVersion}</version>
         </dependency>
     </dependencies>
 
