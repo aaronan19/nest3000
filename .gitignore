@@ -1,10 +1,3 @@
 .idea/*
 build/.idea/*
-build/build.iml
-dbdrivers/dbdrivers.iml
-dbdrivers/mongodao/dbdrivers-mongodao.iml
-
-
-webservs/webservers.iml
-
-webservs/jetty/webservers-jetty.iml
+*.iml
