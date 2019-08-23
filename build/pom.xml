@@ -26,6 +26,12 @@
         <maven-jar-plugin.version>3.1.0</maven-jar-plugin.version>
         <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
 
+        <!-- Java Servlet API -->
+        <javax.servlet.api.version>3.1.0</javax.servlet.api.version>
+
+        <!-- Apache Common Utils -->
+        <commons-lang3.version>3.7</commons-lang3.version>
+
         <!-- Jetty -->
         <jetty.version>9.3.9.v20160517</jetty.version>
 
@@ -34,11 +40,22 @@
 
         <!-- Jackson -->
         <jackson.version>2.9.6</jackson.version>
+
+        <!-- Junit -->
+        <junit.version>4.8.1</junit.version>
+
+        <!-- Swagger -->
+        <swagger-codegen.version>2.4.1</swagger-codegen.version>
+        <swagger-core.version>1.5.20</swagger-core.version>
+        <swagger-annotations.version>1.5.20</swagger-annotations.version>
+        <swagger-parser.version>1.0.36</swagger-parser.version>
+
     </properties>
 
     <modules>
         <module>${project.home}/dbdrivers</module>
         <module>${project.home}/webservs</module>
+        <module>${project.home}/sample</module>
     </modules>
 
     <dependencyManagement>
@@ -65,6 +82,20 @@
                 <groupId>org.mongodb</groupId>
                 <artifactId>mongo-java-driver</artifactId>
                 <version>${mongo.version}</version>
+            </dependency>
+
+            <!-- Java Servlet API -->
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>javax.servlet-api</artifactId>
+                <version>${javax.servlet.api.version}</version>
+            </dependency>
+
+            <!-- Apache Common Utils -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
             </dependency>
 
             <!--Jetty WEB server -->
@@ -116,6 +147,45 @@
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
                 <version>${jackson.version}</version>
+            </dependency>
+
+            <!-- JUnit -->
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+            </dependency>
+
+            <!-- Swagger -->
+            <dependency>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-annotations</artifactId>
+                <version>${swagger-annotations.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-jersey2-jaxrs</artifactId>
+                <scope>compile</scope>
+                <version>${swagger-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-parser</artifactId>
+                <version>${swagger-parser.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>io.swagger</groupId>
+                        <artifactId>swagger-models</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>io.swagger</groupId>
+                        <artifactId>swagger-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>io.swagger</groupId>
+                        <artifactId>swagger-annotations</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
         </dependencies>
     </dependencyManagement>
