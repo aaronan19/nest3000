@@ -11219,10 +11219,6 @@ definitions:
       neUserlabel:
         type: string
         description: 'ne userlabel'
-      xcPortPower:
-        type: array
-        items:
-          $ref: "./common.model.yaml#/definitions/XcPortPower"
 
   ######################################
   # Alarm

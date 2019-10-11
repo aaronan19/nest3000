@@ -28,6 +28,7 @@
 
         <!-- Java Servlet API -->
         <javax.servlet.api.version>3.1.0</javax.servlet.api.version>
+        <javax.validation-api.version>2.0.1.Final</javax.validation-api.version>
 
         <!-- Apache Common Utils -->
         <commons-lang3.version>3.7</commons-lang3.version>
@@ -45,10 +46,11 @@
         <junit.version>4.8.1</junit.version>
 
         <!-- Swagger -->
-        <swagger-codegen.version>2.4.1</swagger-codegen.version>
-        <swagger-core.version>1.5.20</swagger-core.version>
-        <swagger-annotations.version>1.5.20</swagger-annotations.version>
-        <swagger-parser.version>1.0.36</swagger-parser.version>
+        <swagger-core-v3.version>2.0.8</swagger-core-v3.version>
+        <swagger-annotations-v3.version>2.0.8</swagger-annotations-v3.version>
+        <swagger-jaxrs2-v3.version>2.0.8</swagger-jaxrs2-v3.version>
+        <swagger-models-v3.version>2.0.8</swagger-models-v3.version>
+        <swagger-codegen-maven-plugin-v3.version>3.0.11</swagger-codegen-maven-plugin-v3.version>
 
     </properties>
 
@@ -89,6 +91,11 @@
                 <groupId>javax.servlet</groupId>
                 <artifactId>javax.servlet-api</artifactId>
                 <version>${javax.servlet.api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.validation</groupId>
+                <artifactId>validation-api</artifactId>
+                <version>${javax.validation-api.version}</version>
             </dependency>
 
             <!-- Apache Common Utils -->
@@ -158,34 +165,29 @@
 
             <!-- Swagger -->
             <dependency>
-                <groupId>io.swagger</groupId>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-core</artifactId>
+                <version>${swagger-core-v3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger.core.v3</groupId>
                 <artifactId>swagger-annotations</artifactId>
-                <version>${swagger-annotations.version}</version>
+                <version>${swagger-annotations-v3.version}</version>
             </dependency>
             <dependency>
-                <groupId>io.swagger</groupId>
-                <artifactId>swagger-jersey2-jaxrs</artifactId>
-                <scope>compile</scope>
-                <version>${swagger-core.version}</version>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-jaxrs2</artifactId>
+                <version>${swagger-jaxrs2-v3.version}</version>
             </dependency>
             <dependency>
-                <groupId>io.swagger</groupId>
-                <artifactId>swagger-parser</artifactId>
-                <version>${swagger-parser.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>io.swagger</groupId>
-                        <artifactId>swagger-models</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>io.swagger</groupId>
-                        <artifactId>swagger-core</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>io.swagger</groupId>
-                        <artifactId>swagger-annotations</artifactId>
-                    </exclusion>
-                </exclusions>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-models</artifactId>
+                <version>${swagger-models-v3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger.codegen.v3</groupId>
+                <artifactId>swagger-codegen-maven-plugin</artifactId>
+                <version>${swagger-codegen-maven-plugin.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -193,6 +195,11 @@
     <build>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>io.swagger.codegen.v3</groupId>
+                    <artifactId>swagger-codegen-maven-plugin</artifactId>
+                    <version>${swagger-codegen-maven-plugin.version}</version>
+                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
